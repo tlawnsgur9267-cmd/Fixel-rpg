@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>픽셀 전설: 잊힌 숲</title>
+<style>
+:root{--bg:#101520;--panel:#1b2434;--line:#3b4a60;--gold:#ffcd66;--mint:#7ce4b1}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:#eaf1ff;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif}button{touch-action:manipulation;cursor:pointer;border:1px solid #64748b;background:#2e405b;color:white;border-radius:10px;font-weight:750;padding:10px;font-size:13px}button:active{transform:scale(.96);background:#486080}button:disabled{opacity:.35}#app{max-width:780px;margin:auto;padding:10px 10px 24px}h1{font-size:20px;margin:2px 0;color:#ffe5a1;letter-spacing:-.5px}header{display:flex;align-items:center;justify-content:space-between;gap:8px}.tiny{font-size:11px;color:#aebbd0}.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;margin:8px 0;padding:10px}.top{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;text-align:center}.chip{border:1px solid #33465e;border-radius:9px;background:#111b2b;padding:6px 3px;font-size:10px;color:#aab9cc}.chip b{display:block;color:#fff;font-size:15px;margin-top:3px}.bars{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}.barrow{font-size:11px}.bar{height:8px;border-radius:10px;background:#0b111d;overflow:hidden;margin-top:4px}.bar>i{display:block;height:100%;width:100%;transition:width .2s}.xp{margin-top:7px}.scene{position:relative;overflow:hidden;border:2px solid #526780;border-radius:13px;background:#243f37;box-shadow:0 0 0 3px #0b111d}canvas{width:100%;height:auto;display:block;image-rendering:pixelated;touch-action:none}.scene-top{position:absolute;top:8px;left:8px;background:#101c2bd9;border:1px solid #53677a;border-radius:8px;padding:5px 8px;font-size:11px;pointer-events:none}.toast{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);background:#111b2be8;border:1px solid #b48d4c;padding:9px 14px;border-radius:9px;font-weight:bold;text-align:center;pointer-events:none;max-width:90%;opacity:0;transition:opacity .2s}.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.controls button{min-height:45px}.primary{background:#87521f;border-color:#d9a35b}.green{background:#17634e;border-color:#42a58a}.red{background:#713243;border-color:#bc6677}.subnav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.subnav button{padding:9px 3px;font-size:12px}.subnav .selected{background:#5b4c2f;border-color:#e7b85e;color:#ffebbc}.section{min-height:145px;max-height:260px;overflow-y:auto}.item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 2px;border-bottom:1px solid #344258;font-size:12px}.item:last-child{border-bottom:0}.item button{padding:7px 10px}.muted{color:#aebbd0;font-size:11px}.common{color:#d8e1ef}.rare{color:#6ab5ff}.epic{color:#d99bff}.legend{color:#ffce69}.quest{padding:7px 0;border-bottom:1px solid #354358;font-size:12px}.quest:last-child{border:0}.quest .bar{margin:6px 0}.logline{font-size:12px;color:#c5d4e8;padding:5px 0;border-bottom:1px solid #29374a}.bottom{display:flex;justify-content:space-between;gap:8px}.bottom button{flex:1}.hint{font-size:11px;line-height:1.5;color:#aab9cb;margin:8px 3px}.pill{display:inline-block;border:1px solid #63748a;padding:2px 6px;border-radius:6px;font-size:10px}.danger{color:#ff909f}
+</style></head><body><div id="app">
+<header><div><h1>⚔ 픽셀 전설 <span style="font-size:11px;color:#9dd8b9">v2.0</span></h1><div class="tiny">잊힌 숲의 수호자 · 전사</div></div><button id="help">❔ 도움말</button></header>
+<div class="panel"><div class="top"><div class="chip">레벨<b id="lv">1</b></div><div class="chip">전투력<b id="pow">0</b></div><div class="chip">골드<b id="gold">0</b></div><div class="chip">처치 수<b id="kills">0</b></div></div>
+<div class="bars"><div class="barrow">❤️ HP <span id="hpt"></span><div class="bar"><i id="hpb" style="background:#ed6579"></i></div></div><div class="barrow">💧 MP <span id="mpt"></span><div class="bar"><i id="mpb" style="background:#61a5ef"></i></div></div></div>
+<div class="barrow xp">✨ EXP <span id="expt"></span><div class="bar"><i id="expb" style="background:#e9c96a"></i></div></div></div>
+<div class="scene"><canvas id="cv" width="480" height="300"></canvas><div class="scene-top" id="location"></div><div class="toast" id="toast"></div></div>
+<div class="panel"><div class="controls"><button class="primary" id="attack">⚔ 공격</button><button id="skill">💥 회전베기<br><span class="tiny">MP 12</span></button><button id="auto" class="green">🤖 자동사냥 OFF</button><button id="potion">🧪 물약 <span id="potions">3</span></button><button id="zone">🗺 사냥터 이동</button><button id="boss" class="red">👑 보스 소환</button></div><div class="hint">지도 화면을 손가락으로 드래그하면 전사가 이동해. 공격은 가까운 적에게만 맞고, 자동사냥은 적을 찾아 이동하며 공격해!</div></div>
+<div class="panel"><div class="subnav"><button data-tab="quests" class="selected">📜 퀘스트</button><button data-tab="bag">🎒 가방</button><button data-tab="forge">🔨 대장간</button><button data-tab="log">📢 기록</button></div><div id="content" class="section"></div></div>
+<div class="bottom"><button id="save">💾 저장</button><button id="reset">↩ 처음부터</button></div><div class="hint">진행 상황은 이 아이폰의 브라우저에 자동 저장돼. 브라우저 데이터를 지우거나 다른 기기에서 열면 저장이 공유되지 않아. 인터넷 연결 없이도 실행 가능한 단일 HTML 게임이야.</div>
+</div><script>
+(()=>{'use strict';
+const $=x=>document.getElementById(x),cv=$('cv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
+const W=480,H=300,TWO=Math.PI*2, SAVE='pixel_legend_v2_save';
+const zones=[
+ {name:'초록 들판',min:1,bg:'#35614a',mon:'슬라임',hp:34,atk:5,exp:9,gold:5,col:'#8fe17b',need:0},
+ {name:'버섯 숲',min:3,bg:'#334f48',mon:'버섯 괴물',hp:75,atk:10,exp:18,gold:12,col:'#d79ce0',need:3},
+ {name:'망각의 폐허',min:6,bg:'#51545d',mon:'해골 전사',hp:135,atk:18,exp:32,gold:21,col:'#d5d6b5',need:6},
+ {name:'화염 협곡',min:10,bg:'#633d36',mon:'불꽃 정령',hp:230,atk:29,exp:58,gold:39,col:'#ffab5b',need:10}
+];
+const rarities=[['common','일반',.57],['rare','희귀',.28],['epic','영웅',.12],['legend','전설',.03]];
+const names={weapon:['녹슨 장검','푸른 강철검','왕국의 대검','별빛 성검'],armor:['가죽 갑옷','은빛 흉갑','수호자의 갑주','불멸의 갑옷'],ring:['나무 반지','달빛 반지','마력의 반지','태양의 반지']};
+const quests=[{id:'slime',name:'첫 번째 사냥',text:'몬스터 5마리 처치',goal:5,kind:'kills',gold:50,exp:35},{id:'hunt',name:'숙련된 사냥꾼',text:'몬스터 25마리 처치',goal:25,kind:'kills',gold:220,exp:150},{id:'forge',name:'대장장이의 시험',text:'장비 강화 3회 성공',goal:3,kind:'enhances',gold:150,exp:90},{id:'boss',name:'수호자 토벌',text:'보스 1마리 처치',goal:1,kind:'bossKills',gold:350,exp:200},{id:'loot',name:'보물 수집가',text:'장비 15개 획득',goal:15,kind:'drops',gold:250,exp:120}];
+function fresh(){return {lv:1,xp:0,hp:120,mp:40,gold:30,kills:0,bossKills:0,drops:0,enhances:0,potions:5,zone:0,bag:[],weapon:{type:'weapon',tier:0,plus:0},armor:{type:'armor',tier:0,plus:0},ring:null,claimed:[],x:115,y:155}}
+let P;try{P=JSON.parse(localStorage.getItem(SAVE))||fresh()}catch(e){P=fresh()}
+if(!P||!P.weapon||!Array.isArray(P.bag))P=fresh();
+let enemies=[],effects=[],particles=[],logs=[],tab='quests',auto=false,target=null,joystick=null,last=performance.now(),attackAt=0,skillAt=0,spawnAt=0,regenAt=0,saveAt=0,bossAlive=false;
+const maxHP=()=>100+P.lv*20,maxMP=()=>30+P.lv*10,needXP=()=>22+P.lv*18;
+const equip=(t)=>P[t], stat=(it)=>!it?0:(it.tier+1)*(it.type==='weapon'?5:it.type==='armor'?3:2)+it.plus*(it.type==='weapon'?3:2);
+const atk=()=>6+P.lv*3+stat(P.weapon)+stat(P.ring),def=()=>2+Math.floor(P.lv*.9)+stat(P.armor)+Math.floor(stat(P.ring)/2);
+const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function toast(s){let e=$('toast');e.textContent=s;e.style.opacity=1;clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.style.opacity=0,1700)}
+function log(s){logs.unshift(s);logs=logs.slice(0,35);if(tab==='log')renderPanel()}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(P))}catch(e){}}
+function addXP(n){P.xp+=n;while(P.xp>=needXP()){P.xp-=needXP();P.lv++;P.hp=maxHP();P.mp=maxMP();toast('🎉 레벨 '+P.lv+' 달성!');log('✨ 레벨업! Lv.'+P.lv)}}
+function makeEnemy(boss=false){const z=zones[P.zone],scale=boss?5:1,hp=Math.floor(z.hp*scale*(1+Math.max(0,P.lv-z.min)*.045));let x=rand(30,W-30),y=rand(50,H-25);if(Math.hypot(x-P.x,y-P.y)<95){x=W-45;y=H-55}return {x,y,hp,max:hp,atk:Math.round(z.atk*(boss?2.5:1)),exp:z.exp*(boss?9:1),gold:z.gold*(boss?13:1),speed:boss?15:rand(16,26),boss,hit:0,phase:rand(0,7)}}
+function spawn(){if(enemies.length<(bossAlive?7:6))enemies.push(makeEnemy())}
+function resetMobs(){enemies=[];bossAlive=false;for(let i=0;i<5;i++)spawn()}
+function drop(force=false){if(!force&&Math.random()>.42)return;let tierRoll=Math.random(),boost=P.zone*.025,weights=[.57-boost,.28,.12,.03+boost],tier=tierRoll<weights[0]?0:tierRoll<weights[0]+weights[1]?1:tierRoll<weights[0]+weights[1]+weights[2]?2:3;
+ if(force)tier=Math.max(1,tier);
+ let type=['weapon','armor','ring'][Math.floor(Math.random()*3)],it={type,tier,plus:0};P.bag.push(it);P.drops++;log('🎁 '+names[type][tier]+' 획득!');if(tier>=2)toast('✨ '+names[type][tier]+' 획득!')}
+function kill(e){P.kills++;if(e.boss){P.bossKills++;bossAlive=false;toast('👑 보스 격파!');drop(true);drop(true)}P.gold+=e.gold;addXP(e.exp);drop();enemies.splice(enemies.indexOf(e),1);for(let i=0;i<12;i++)particles.push({x:e.x,y:e.y,vx:rand(-45,45),vy:rand(-50,25),life:rand(.2,.6),col:e.boss?'#ffd16a':'#c5f59a'});log('⚔ '+(e.boss?'보스':'몬스터')+' 처치! +'+e.exp+'EXP / +'+e.gold+'G')}
+function hit(e,d){e.hp-=d;e.hit=.2;effects.push({x:e.x,y:e.y-24,text:'-'+d,life:.7});if(e.hp<=0)kill(e)}
+function strike(skill=false){let now=performance.now();if(skill){if(P.mp<12){toast('MP 부족!');return}if(now-skillAt<2300)return;P.mp-=12;skillAt=now}else{if(now-attackAt<480)return;attackAt=now}
+ let range=skill?74:51,list=enemies.filter(e=>dist(e,P)<range).sort((a,b)=>dist(a,P)-dist(b,P));if(!list.length){if(!auto)toast('적에게 가까이 가세요!');return}
+ let damage=atk()*(skill?1.6:1);for(let e of (skill?list:list.slice(0,1)))hit(e,Math.max(1,Math.floor(damage*rand(.8,1.25))));
+ effects.push({x:P.x,y:P.y,slash:true,life:.24,skill});renderStats()}
+function moveTo(x,y,dt,speed){let dx=x-P.x,dy=y-P.y,d=Math.hypot(dx,dy);if(d>2){P.x=clamp(P.x+dx/d*Math.min(d,speed*dt),13,W-13);P.y=clamp(P.y+dy/d*Math.min(d,speed*dt),30,H-15)}}
+function update(dt,now){dt=Math.min(dt,.05);
+ if(joystick){moveTo(joystick.x,joystick.y,dt,105);auto=false}
+ if(auto&&enemies.length){let e=enemies.reduce((a,b)=>dist(a,P)<dist(b,P)?a:b);if(dist(e,P)>44)moveTo(e.x,e.y,dt,77);else strike(false)}
+ for(let e of [...enemies]){e.phase+=dt*3;e.hit=Math.max(0,e.hit-dt);let d=dist(e,P);if(d>25){let sp=e.speed*dt;e.x+=(P.x-e.x)/d*sp;e.y+=(P.y-e.y)/d*sp}if(d<30&&now-(e.lastHit||0)>1150){e.lastHit=now;let dmg=Math.max(1,Math.floor(e.atk-def()*.6+rand(-1,3)));P.hp=Math.max(0,P.hp-dmg);effects.push({x:P.x,y:P.y-24,text:'-'+dmg,life:.7,bad:true});if(P.hp<=0){auto=false;P.hp=Math.max(1,Math.floor(maxHP()*.55));P.mp=Math.max(5,Math.floor(maxMP()*.4));P.gold=Math.max(0,P.gold-20);P.x=115;P.y=155;toast('💀 쓰러졌어! 20G를 잃었어');log('💀 전투에서 패배해 귀환했어.');resetMobs()}}}
+ if(now-spawnAt>2600){spawnAt=now;spawn()}if(now-regenAt>2500){regenAt=now;P.hp=Math.min(maxHP(),P.hp+2);P.mp=Math.min(maxMP(),P.mp+3)}
+ for(let e of effects)e.life-=dt;effects=effects.filter(e=>e.life>0);for(let p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0);
+ if(now-saveAt>4500){saveAt=now;save()}renderStats()}
+function rect(x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),w,h)}
+function draw(now){const z=zones[P.zone];rect(0,0,W,H,z.bg);
+ for(let i=0;i<110;i++){let x=(i*79+31)%W,y=(i*47+19)%H;rect(x,y,3,3,i%4===0?'#c9e8a025':'#112d2a35')}
+ for(let i=0;i<12;i++){let x=(i*107+20)%W,y=(i*83+38)%H;if(Math.hypot(x-P.x,y-P.y)<28)continue;if(P.zone===2){rect(x,y,19,15,'#797b7e');rect(x+4,y-4,12,6,'#a4a4a4')}else if(P.zone===3){rect(x,y,23,12,'#7e3526');rect(x+4,y+2,9,4,'#ff8b35')}else{rect(x+6,y+12,8,15,'#473c30');rect(x,y,22,17,P.zone===1?'#1b493e':'#215b39');rect(x+5,y-5,13,13,P.zone===1?'#3b7660':'#33784a')}}
+ // player shadow
+ rect(P.x-11,P.y+11,22,5,'#10232099');
+ rect(P.x-9,P.y-2,18,18,'#2c476d');rect(P.x-8,P.y-15,16,14,'#efbd89');rect(P.x-10,P.y-18,20,6,'#d7e0e8');rect(P.x-7,P.y-21,14,5,'#a6bacf');rect(P.x-6,P.y+14,5,7,'#253047');rect(P.x+2,P.y+14,5,7,'#253047');rect(P.x+9,P.y-4,4,22,'#f6cf73');rect(P.x+9,P.y-7,4,6,'#eef1f3');
+ for(let e of enemies){let x=e.x,y=e.y+Math.sin(e.phase)*2,sz=e.boss?1.7:1;rect(x-13*sz,y+10*sz,26*sz,5,'#0b172577');if(e.boss){rect(x-14,y-31,28,8,'#f4cb55');rect(x-18,y-23,36,34,e.hit?'#fff':z.col);rect(x-9,y-15,6,6,'#111827');rect(x+4,y-15,6,6,'#111827');rect(x-6,y,12,4,'#642e36')}else{rect(x-12,y-12,24,25,e.hit?'#fff':z.col);rect(x-7,y-3,5,5,'#132c36');rect(x+3,y-3,5,5,'#132c36');rect(x-4,y+7,8,3,'#2b4244')}
+ rect(x-17,y-(e.boss?42:24),34,5,'#1c2532');rect(x-17,y-(e.boss?42:24),34*Math.max(0,e.hp/e.max),5,e.boss?'#ffc15d':'#e9646b')}
+ for(let e of effects){c.globalAlpha=clamp(e.life/.6,0,1);if(e.slash){c.strokeStyle=e.skill?'#ffe084':'#dbeafe';c.lineWidth=e.skill?5:3;c.beginPath();c.arc(e.x,e.y,e.skill?69:37,-.8,1.5);c.stroke()}else{c.font='bold 13px sans-serif';c.textAlign='center';c.fillStyle=e.bad?'#ff8492':'#fff2aa';c.fillText(e.text,e.x,e.y-(.7-e.life)*30)}}c.globalAlpha=1;
+ for(let p of particles){rect(p.x,p.y,3,3,p.col)}}
+function renderStats(){$('lv').textContent=P.lv;$('pow').textContent=atk()+def();$('gold').textContent=P.gold;$('kills').textContent=P.kills;$('hpt').textContent=P.hp+'/'+maxHP();$('mpt').textContent=P.mp+'/'+maxMP();$('expt').textContent=P.xp+'/'+needXP();$('hpb').style.width=100*P.hp/maxHP()+'%';$('mpb').style.width=100*P.mp/maxMP()+'%';$('expb').style.width=100*P.xp/needXP()+'%';$('potions').textContent=P.potions;$('location').textContent='🗺 '+zones[P.zone].name+' · 권장 Lv.'+zones[P.zone].min;$('auto').textContent='🤖 자동사냥 '+(auto?'ON':'OFF')}
+function itemName(it){return names[it.type][it.tier]+' +'+it.plus}
+function renderPanel(){const box=$('content');if(tab==='log'){box.innerHTML=logs.map(s=>'<div class="logline">'+s+'</div>').join('')||'<p class="muted">아직 전투 기록이 없어.</p>';return}
+ if(tab==='quests'){box.innerHTML=quests.map(q=>{let val=Math.min(P[q.kind]||0,q.goal),done=P.claimed.includes(q.id);return '<div class="quest"><b>'+(done?'✅ ':'📜 ')+q.name+'</b> <span class="muted">'+q.text+'</span><div class="bar"><i style="width:'+100*val/q.goal+'%;background:#72d6b2"></i></div><div class="bottom"><span class="muted">'+val+'/'+q.goal+' · 보상 '+q.gold+'G, '+q.exp+'EXP</span><button data-claim="'+q.id+'" '+(done||val<q.goal?'disabled':'')+'>'+(done?'완료':'보상 받기')+'</button></div></div>'}).join('');box.querySelectorAll('[data-claim]').forEach(b=>b.onclick=()=>{let q=quests.find(x=>x.id===b.dataset.claim);if(P.claimed.includes(q.id)||(P[q.kind]||0)<q.goal)return;P.claimed.push(q.id);P.gold+=q.gold;addXP(q.exp);toast('🎁 퀘스트 보상 획득!');save();renderPanel()});return}
+ if(tab==='bag'){let gear=['weapon','armor','ring'].map(t=>{let it=P[t];return '<div class="item"><div><b>'+(t==='weapon'?'⚔ 무기':t==='armor'?'🛡 방어구':'💍 반지')+'</b><div class="muted">'+(it?itemName(it):'미착용')+'</div></div><span class="pill">장착 중</span></div>'}).join('');
+ box.innerHTML='<div class="muted">장착 장비</div>'+gear+'<div class="muted" style="margin-top:12px">가방 '+P.bag.length+'개 · 장비를 착용하거나 판매할 수 있어</div>'+P.bag.map((it,i)=>'<div class="item"><div><b class="'+rarities[it.tier][0]+'">'+itemName(it)+'</b><div class="muted">'+rarities[it.tier][1]+' · 능력치 +'+stat(it)+'</div></div><div><button data-equip="'+i+'">착용</button> <button data-sell="'+i+'">판매</button></div></div>').join('');
+ box.querySelectorAll('[data-equip]').forEach(b=>b.onclick=()=>{let i=+b.dataset.equip,it=P.bag.splice(i,1)[0],old=P[it.type];P[it.type]=it;if(old)P.bag.push(old);toast(itemName(it)+' 착용!');save();renderPanel()});
+ box.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{let i=+b.dataset.sell,it=P.bag.splice(i,1)[0],g=10*(it.tier+1)**2+it.plus*10;P.gold+=g;toast('+'+g+'G 판매 완료');save();renderPanel()});return}
+ if(tab==='forge'){box.innerHTML='<div class="muted" style="padding:8px 0">강화 성공 시 +1, 실패 시 -1 (0 아래로 하락하지 않음). 장비는 파괴되지 않아.</div>'+['weapon','armor','ring'].map(t=>{let it=P[t];if(!it)return '';let cost=20+it.plus*25+(it.tier+1)*15,rate=Math.max(20,85-it.plus*10);return '<div class="item"><div><b>'+itemName(it)+'</b><div class="muted">성공 '+rate+'% · 비용 '+cost+'G</div></div><button data-forge="'+t+'">강화</button></div>'}).join('')+'<div class="muted" style="padding:8px">장비 강화 성공 '+P.enhances+'회</div>';
+ box.querySelectorAll('[data-forge]').forEach(b=>b.onclick=()=>{let it=P[b.dataset.forge],cost=20+it.plus*25+(it.tier+1)*15,rate=Math.max(20,85-it.plus*10);if(P.gold<cost){toast('골드가 부족해!');return}P.gold-=cost;if(Math.random()*100<rate){it.plus++;P.enhances++;toast('✨ 강화 성공! +'+it.plus)}else{it.plus=Math.max(0,it.plus-1);toast('💔 강화 실패! +'+it.plus)}save();renderPanel()});return}}
+function setTab(t){tab=t;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('selected',b.dataset.tab===t));renderPanel()}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+$('attack').onclick=()=>strike();$('skill').onclick=()=>strike(true);$('auto').onclick=()=>{auto=!auto;joystick=null;toast(auto?'🤖 자동사냥 시작':'자동사냥 중지');renderStats()};
+$('potion').onclick=()=>{if(!P.potions){if(P.gold>=25){P.gold-=25;P.potions++;toast('물약 1개 구매!')}else toast('물약 구매에 25G 필요');renderStats();return}P.potions--;P.hp=Math.min(maxHP(),P.hp+75);P.mp=Math.min(maxMP(),P.mp+20);toast('🧪 회복 완료!');save();renderStats()};
+$('zone').onclick=()=>{let next=(P.zone+1)%zones.length;if(P.lv<zones[next].need){toast('Lv.'+zones[next].need+'부터 입장 가능!');return}P.zone=next;P.x=115;P.y=155;resetMobs();toast('🗺 '+zones[next].name);save();renderStats()};
+$('boss').onclick=()=>{if(bossAlive){toast('이미 보스가 있어!');return}if(P.kills<5){toast('몬스터 5마리 처치 후 소환 가능!');return}bossAlive=true;enemies.push(makeEnemy(true));toast('👑 보스 등장!');log('⚠ 보스가 나타났어!')};
+$('save').onclick=()=>{save();toast('💾 저장 완료!')};
+$('reset').onclick=()=>{if(confirm('레벨, 장비, 골드를 모두 초기화할까?')){P=fresh();auto=false;resetMobs();save();renderPanel();toast('새로운 모험 시작!')}};
+$('help').onclick=()=>alert('픽셀 전설 v2.0\\n\\n• 지도에서 손가락을 드래그하면 전사가 이동해요.\\n• 공격 버튼은 가까운 몬스터를 공격해요.\\n• 자동사냥은 몬스터를 추적하고 공격해요.\\n• 회전베기는 MP 12를 소모하는 범위 공격이에요.\\n• 가방에서 장비를 착용하거나 팔 수 있어요.\\n• 대장간 강화 실패 시 강화 단계만 하락해요.\\n• 물약이 없으면 물약 버튼을 눌러 25G로 1개 구매할 수 있어요.\\n• 몬스터 5마리 처치 후 보스를 소환할 수 있어요.\\n• 저장은 현재 브라우저에서만 유지돼요.');
+function point(ev){let r=cv.getBoundingClientRect();return {x:clamp((ev.clientX-r.left)*W/r.width,0,W),y:clamp((ev.clientY-r.top)*H/r.height,0,H)}}
+cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);joystick=point(e)});
+cv.addEventListener('pointermove',e=>{if(joystick){e.preventDefault();joystick=point(e)}});
+cv.addEventListener('pointerup',()=>joystick=null);cv.addEventListener('pointercancel',()=>joystick=null);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});window.addEventListener('pagehide',save);
+P.hp=clamp(P.hp,1,maxHP());P.mp=clamp(P.mp,0,maxMP());resetMobs();setTab('quests');renderStats();log('🌲 잊힌 숲의 모험이 시작됐어!');toast('⚔ 모험을 시작하자!');
+function loop(now){let dt=(now-last)/1000;last=now;update(dt,now);draw(now);requestAnimationFrame(loop)}requestAnimationFrame(loop);
+})();
+</script></body></html>
